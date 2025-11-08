@@ -1,0 +1,21 @@
+# --- CORE GUI ---
+PySide6==6.6.1
+shiboken6==6.6.1
+
+# --- IMAGE / VIDEO PROCESSING ---
+numpy==1.26.4
+opencv-python==4.9.0.80
+
+# Evitar ruptura con NumPy 2.x
+numpy<2
+
+
+# --- MEDIA PIPE (más adelante) ---
+mediapipe==0.10.14
+
+# --- PERFORMANCE & DEBUG ---
+psutil==5.9.8
+tqdm==4.66.1
+
+# --- UTILS ---
+Pillow==10.2.0
