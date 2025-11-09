@@ -8,18 +8,23 @@ from PySide6.QtCore import Qt, Signal
 from ..styles import COLORS, get_button_font
 
 
+from src.core.processors.hand_tracking import HandTrackingProcessor
+
+
+
 class ModePanel(QWidget):
     """Panel de selección de modos con botones tipo ladrillo."""
     
     # Señal emitida cuando se cambia el modo
     mode_changed = Signal(str)
     
-    MODES = {
-        'hand': 'Hand Tracking',
-        'body': 'Body Tracking',
-        'filters': 'Filters',
-        'draw': 'Draw Mode'
+    modes = {
+        "Hand Tracking": "hand_tracking",
+        "Body Tracking": "body_tracking",
+        "Filters": "filters",
+        "Draw Mode": "draw_mode"
     }
+
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -35,7 +40,7 @@ class ModePanel(QWidget):
         self.buttons = {}
         
         # Crear botones para cada modo
-        for mode_key, mode_label in self.MODES.items():
+        for mode_key, mode_label in self.modes.items():
             button = QPushButton(mode_label)
             button.setCheckable(True)
             button.setMinimumHeight(60)  # Altura tipo "ladrillo"
@@ -44,8 +49,9 @@ class ModePanel(QWidget):
             self._update_button_style(button, False)
             
             # Conectar señal
-            button.clicked.connect(lambda checked, m=mode_key: self._on_mode_selected(m))
-            
+            button.clicked.connect(lambda checked=False, mode=mode_key: self._on_mode_selected(mode))
+
+
             # Agregar al grupo y al layout
             self.button_group.addButton(button)
             self.buttons[mode_key] = button
@@ -152,6 +158,13 @@ class ModePanel(QWidget):
         self.current_mode = mode
         self.mode_changed.emit(mode)
     
+
+    def on_mode_changed(self, mode):
+        if mode == "hand_tracking":
+            self.camera_view.set_processor(HandTrackingProcessor())
+        else:
+            self.camera_view.set_processor(None)
+
     def _toggle_camera(self):
         """Alterna el estado de la cámara."""
         self.camera_running = not self.camera_running

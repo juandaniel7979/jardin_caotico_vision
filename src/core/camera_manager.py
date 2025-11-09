@@ -1,55 +1,30 @@
-"""
-Gestión de cámaras, cv2 o MediaPipe.
-Agregará captura OpenCV más adelante.
-"""
+# src/core/camera_manager.py
+import cv2
+import threading
+import time
 
-
-class CameraManager:
-    """Gestiona la captura de video desde cámaras usando OpenCV."""
-    
-    def __init__(self):
-        """Inicializa el gestor de cámara."""
-        self.camera_index = 0
-        self.is_capturing = False
-        # Más adelante: self.cap = None (cv2.VideoCapture)
-    
-    def start_capture(self, camera_index=0):
-        """
-        Inicia la captura de video desde una cámara.
-        
-        Args:
-            camera_index: Índice de la cámara a usar (default: 0)
-        
-        Returns:
-            bool: True si la captura se inició correctamente
-        """
+class CameraManager(threading.Thread):
+    def __init__(self, broker, camera_index=0):
+        super().__init__(daemon=True)
+        self.broker = broker
         self.camera_index = camera_index
-        # Más adelante: implementar con cv2.VideoCapture
-        self.is_capturing = True
-        return True
-    
-    def stop_capture(self):
-        """Detiene la captura de video."""
-        # Más adelante: self.cap.release() si existe
-        self.is_capturing = False
-    
-    def read_frame(self):
-        """
-        Lee un frame de la cámara.
-        
-        Returns:
-            frame: Frame capturado (más adelante será numpy array)
-        """
-        # Más adelante: return self.cap.read()
-        return None
-    
-    def is_opened(self):
-        """
-        Verifica si la cámara está abierta y funcionando.
-        
-        Returns:
-            bool: True si la cámara está abierta
-        """
-        return self.is_capturing
+        self.running = False
 
-# TODO (Cursor): implementar más adelante
+    def run(self):
+        cap = cv2.VideoCapture(self.camera_index)
+        if not cap.isOpened():
+            print("⚠️ No se pudo abrir la cámara")
+            return
+
+        self.running = True
+        while self.running:
+            ret, frame = cap.read()
+            if not ret:
+                continue
+            self.broker.set_frame(frame)
+            time.sleep(0.02)  # ~50 fps
+
+        cap.release()
+
+    def stop(self):
+        self.running = False

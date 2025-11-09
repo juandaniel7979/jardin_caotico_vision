@@ -7,6 +7,7 @@ from PySide6.QtCore import Qt
 from .styles import apply_theme, create_crt_overlay_widget
 from .widgets.camera_view import CameraView
 from .widgets.mode_panel import ModePanel
+from src.core.frame_broker import FrameBroker
 
 
 class MainWindow(QWidget):
@@ -26,7 +27,8 @@ class MainWindow(QWidget):
         main_layout.setSpacing(8)
         
         # Panel izquierdo: CameraView (60%)
-        self.camera_view = CameraView()
+        self.frame_broker = FrameBroker()
+        self.camera_view = CameraView(self.frame_broker)
         self.camera_view.setObjectName("camera")
         apply_theme(self.camera_view)
         main_layout.addWidget(self.camera_view, stretch=60)
